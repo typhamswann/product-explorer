@@ -64,7 +64,7 @@ See `TIMELINE_LOGGING.md` and `COURSE_EXECUTION.md` for details!
 
 See `MDX_GENERATION.md` for details!
 
-### 7. Live Video Recording 🎥 (NEW!)
+### 7. Live Video Recording 🎥
 **Actual downloadable videos:**
 - Records real live browser execution
 - Smooth WebM video files (not screenshots!)
@@ -73,6 +73,17 @@ See `MDX_GENERATION.md` for details!
 - Playable offline, uploadable anywhere
 
 See `LIVE_VIDEO_RECORDING.md` for details!
+
+### 8. HeyGen Avatar Narration Videos 🎬 (NEW!)
+**Professional demo videos with AI avatars:**
+- Automated script generation from timeline data
+- HeyGen avatar intro and narration segments
+- Picture-in-picture overlay during demos
+- Synced audio with visual actions
+- Full video composition with ffmpeg
+- Custom avatars supported
+
+See `HEYGEN_VIDEO_PRODUCTION.md` for details!
 
 ## Setup
 
@@ -88,11 +99,14 @@ You already have the main dependencies installed. The Product Explorer uses:
 ### API Keys
 
 The tool uses your existing API keys from the main `.env` file:
-- `AGENTMAIL_API_KEY` - For creating temporary emails
-- `BROWSER_USE_API_KEY` - For browser automation
-- `OPENAI_API_KEY` - For intelligent verification handling
+- `AGENTMAIL_API_KEY` - For creating temporary emails (required)
+- `BROWSER_USE_API_KEY` - For browser automation (required)
+- `OPENAI_API_KEY` - For intelligent verification handling (required)
+- `HEYGEN_API_KEY` - For AI avatar video generation (optional)
 
 These should already be configured in `/Users/typham-swann/Desktop/yc-hackathon/.env`
+
+**Note:** The pipeline works without `HEYGEN_API_KEY` but will skip avatar video generation.
 
 ## Usage
 
@@ -108,17 +122,21 @@ This will:
 - Generate exploration report
 - **Automatically generate 5 educational demos**
 
-### Full Pipeline (with Course Execution)
+### Full Pipeline (with Course Execution & Video Generation)
 
 ```bash
 python explore.py <product_url> --execute-courses
 ```
 
 This will:
-- Explore the product
-- Generate 5 educational demos
-- **Execute all 5 courses in parallel** ⬅️ NEW!
-- **Create recordings with timelines** ⬅️ NEW!
+1. Explore the product
+2. Generate 5 educational demos
+3. **Execute all 5 courses in parallel**
+4. **Create live video recordings with timelines**
+5. **Generate clean MDX course content**
+6. **Generate HeyGen avatar narration scripts**
+7. **Create HeyGen intro and narration videos**
+8. **Compose final demo videos with picture-in-picture overlays** ⬅️ NEW!
 
 ### Skip Demo Generation
 

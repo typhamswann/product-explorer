@@ -225,6 +225,113 @@ async def explore_product_cli(product_url: str, generate_demos: bool = True, exe
                             print(f"  7. Watch course recordings to see demos in action")
                             print(f"  8. View MDX course content (ready for docs site)")
                             
+                            # Generate HeyGen videos and compose final demos
+                            print("\n" + "="*80)
+                            print("🎬 Generating HeyGen Avatar Videos...")
+                            print("="*80 + "\n")
+                            
+                            try:
+                                from script_generator import ScriptGenerator
+                                from heygen_generator import HeyGenGenerator
+                                from video_composer import VideoComposer
+                                
+                                heygen_key = os.getenv('HEYGEN_API_KEY')
+                                if not heygen_key:
+                                    print("⚠️  HEYGEN_API_KEY not found - skipping video generation")
+                                else:
+                                    # Initialize generators
+                                    script_gen = ScriptGenerator(openai_api_key=openai_key)
+                                    heygen_gen = HeyGenGenerator(api_key=heygen_key, output_dir=str(output_dir))
+                                    video_composer = VideoComposer(output_dir=str(output_dir))
+                                    
+                                    final_videos = []
+                                    
+                                    # Process each successful course
+                                    for i, result in enumerate(execution_results):
+                                        if not isinstance(result, dict) or result.get('status') != 'finished':
+                                            print(f"⏭️  Skipping course {i+1} (not finished)")
+                                            continue
+                                        
+                                        timeline_file = result.get('timeline_file')
+                                        video_file = result.get('video_file')
+                                        
+                                        if not timeline_file or not video_file:
+                                            print(f"⏭️  Skipping course {i+1} (missing timeline or video)")
+                                            continue
+                                        
+                                        print(f"\n🎬 Processing Course {i+1}...")
+                                        
+                                        try:
+                                            # Generate script from timeline
+                                            print(f"   📝 Generating narration script...")
+                                            script = await script_gen.generate_script(
+                                                timeline_file=timeline_file,
+                                                product_context=product_context,
+                                                course_data=demo_collection.demos[i].model_dump()
+                                            )
+                                            
+                                            if not script or not script.get('segments'):
+                                                print(f"   ⚠️  Script generation failed - skipping")
+                                                continue
+                                            
+                                            print(f"   ✅ Script: {len(script['segments'])} segments")
+                                            
+                                            # Generate HeyGen videos for each segment
+                                            print(f"   🎥 Generating HeyGen avatar videos...")
+                                            heygen_videos = await heygen_gen.generate_all_segments(script['segments'])
+                                            
+                                            if not heygen_videos:
+                                                print(f"   ⚠️  HeyGen video generation failed - skipping")
+                                                continue
+                                            
+                                            print(f"   ✅ Generated {len(heygen_videos)} HeyGen videos")
+                                            
+                                            # Compose final video
+                                            print(f"   🎬 Composing final demo video...")
+                                            
+                                            # Find intro and narration segments
+                                            intro_video = next((v['video_file'] for v in heygen_videos if v.get('segment_type') == 'intro'), None)
+                                            narration_segments = [v for v in heygen_videos if v.get('segment_type') == 'narration']
+                                            
+                                            if intro_video and narration_segments:
+                                                final_video = await video_composer.compose_video(
+                                                    intro_video=intro_video,
+                                                    browser_recording=video_file,
+                                                    narration_segments=narration_segments,
+                                                    course_index=i,
+                                                    session_id=Path(video_file).stem.split('_')[2]
+                                                )
+                                                
+                                                if final_video:
+                                                    final_videos.append(final_video)
+                                                    print(f"   ✅ Final video: {Path(final_video).name}")
+                                                else:
+                                                    print(f"   ⚠️  Video composition failed")
+                                            else:
+                                                print(f"   ⚠️  Missing intro or narration segments")
+                                        
+                                        except Exception as e:
+                                            print(f"   ❌ Error processing course {i+1}: {e}")
+                                            continue
+                                    
+                                    if final_videos:
+                                        print("\n" + "="*80)
+                                        print("✅ VIDEO GENERATION COMPLETE!")
+                                        print("="*80)
+                                        print(f"Generated {len(final_videos)} final demo videos:")
+                                        for video in final_videos:
+                                            print(f"  - {Path(video).name}")
+                                        print("\n💡 Final Next Steps:")
+                                        print(f"  9. Watch the final demo videos with avatar narration")
+                                        print(f"  10. Share videos for product tutorials and onboarding")
+                                    else:
+                                        print("\n⚠️  No final videos generated")
+                                
+                            except Exception as e:
+                                print(f"\n⚠️  Video generation failed: {e}")
+                                import traceback
+                                traceback.print_exc()
+                            
                         except Exception as e:
                             print(f"\n⚠️  MDX generation failed: {e}")
                             import traceback
