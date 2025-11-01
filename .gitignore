@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Output files (generated)
+outputs/*.json
+outputs/*.txt
+outputs/*.md
+outputs/*.webm
+outputs/*.mp4
+outputs/*.mdx
+spinstack_test*.log
+test_run.log
+
+# Keep outputs directory but ignore contents
+!outputs/.gitkeep
+
+# Logs
+*.log
+*.pid
+
+# Test files
+test_*.py
+inspect_*.py
+examples_*.py
+
